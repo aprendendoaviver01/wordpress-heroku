@@ -33,17 +33,20 @@ do_action( 'rss_tag_pre', 'atom-comments' );
 		elseif ( is_search() )
 			printf( ent2ncr( __( 'Comments for %1$s searching on %2$s' ) ), get_bloginfo_rss( 'name' ), get_search_query() );
 		else
-			printf( ent2ncr( __( 'Comments for %s' ) ), get_bloginfo_rss( 'name' ) . get_wp_title_rss() );
+			printf( ent2ncr( __( 'Comments for %s' ) ), get_wp_title_rss() );
 	?></title>
 	<subtitle type="text"><?php bloginfo_rss('description'); ?></subtitle>
 
-	<updated><?php echo mysql2date('Y-m-d\TH:i:s\Z', get_lastcommentmodified('GMT'), false); ?></updated>
+	<updated><?php
+		$date = get_lastcommentmodified( 'GMT' );
+		echo $date ? mysql2date( 'Y-m-d\TH:i:s\Z', $date ) : date( 'Y-m-d\TH:i:s\Z' );
+	?></updated>
 
 <?php if ( is_singular() ) { ?>
 	<link rel="alternate" type="<?php bloginfo_rss('html_type'); ?>" href="<?php comments_link_feed(); ?>" />
 	<link rel="self" type="application/atom+xml" href="<?php echo esc_url( get_post_comments_feed_link('', 'atom') ); ?>" />
 	<id><?php echo esc_url( get_post_comments_feed_link('', 'atom') ); ?></id>
-<?php } elseif(is_search()) { ?>
+<?php } elseif (is_search()) { ?>
 	<link rel="alternate" type="<?php bloginfo_rss('html_type'); ?>" href="<?php echo home_url() . '?s=' . get_search_query(); ?>" />
 	<link rel="self" type="application/atom+xml" href="<?php echo get_search_comments_feed_link('', 'atom'); ?>" />
 	<id><?php echo get_search_comments_feed_link('', 'atom'); ?></id>
@@ -91,7 +94,7 @@ if ( have_comments() ) : while ( have_comments() ) : the_comment();
 <?php else : // post pass ?>
 		<content type="html" xml:base="<?php comment_link(); ?>"><![CDATA[<?php comment_text(); ?>]]></content>
 <?php endif; // post pass
-	// Return comment threading information (http://www.ietf.org/rfc/rfc4685.txt)
+	// Return comment threading information (https://www.ietf.org/rfc/rfc4685.txt)
 	if ( $comment->comment_parent == 0 ) : // This comment is top level ?>
 		<thr:in-reply-to ref="<?php the_guid(); ?>" href="<?php the_permalink_rss() ?>" type="<?php bloginfo_rss('html_type'); ?>" />
 <?php else : // This comment is in reply to another comment
